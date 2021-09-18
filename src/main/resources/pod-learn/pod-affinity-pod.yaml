@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: downward-pod
+  labels:
+    app: busybox
+spec:
+  containers:
+    - name: downward-pod
+      image: busybox
+      command: ["/bin/sh", "-c" , "env |grep MY"]
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-affinity-pod
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - busybox
+          topologyKey: kubernetes.io/hostname
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - busybox
+            topologyKey: kubernetes.io/hostname
+          weight: 1
+  containers:
+    - name: pod-affinity-pod
+      image: registry.cn-beijing.aliyuncs.com/lml_test/kubernetes-test:1.0.0-SNAPSHOT
+      ports:
+          - containerPort: 9090

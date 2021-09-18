@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: downward-pod
+spec:
+  containers:
+    - name: downward-pod
+      image: busybox
+      command: ["/bin/sh", "-c" , "env |grep MY"]
+      env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: MY_REQUEST_CPU
+          valueFrom:
+            resourceFieldRef:
+              resource: requests.cpu
+        - name: MY_LIMIT_CPU
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+      resources:
+        requests:
+          cpu: "100m"
+        limits:
+          cpu: "5000m"

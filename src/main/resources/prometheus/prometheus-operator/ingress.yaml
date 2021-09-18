@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: monitoring
+  namespace: monitoring
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: prometheus
+          servicePort: 9090
+        path: /prometheus(/|$)(.*)
+      - backend:
+          serviceName: alertmanager
+          servicePort: 9093
+        path: /alertmanager(/|$)(.*)

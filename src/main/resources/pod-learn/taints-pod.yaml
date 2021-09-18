@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: taints-pod
+spec:
+  nodeSelector:
+    test: lml
+  tolerations:
+    - key: test
+      operator: Equal
+      value: lml
+      effect: NoSchedule #
+#    - key: test
+#      operator: Exists
+#      effect: PreferNoSchedule
+#    - key: test
+#      operator: Exists
+#      effect: NoExecute
+#      tolerationSeconds: 20
+  containers:
+    - name: taints-pod
+      image: registry.cn-beijing.aliyuncs.com/lml_test/kubernetes-test:1.0.0-SNAPSHOT
+      ports:
+        - containerPort: 9090

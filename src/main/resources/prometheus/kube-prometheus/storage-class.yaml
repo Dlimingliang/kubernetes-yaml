@@ -1,0 +1,16 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: alicloud-nas-fs
+mountOptions:
+  - nolock,tcp,noresvport
+  - vers=3
+parameters:
+  volumeAs: filesystem
+  # 选Performance及Capacity两种类型，分别表示性能型、容量型。默认为性能型
+  storageType: "Capacity"
+  vpcId: "vpc-****"
+  vSwitchId: "vsw-****"
+  deleteVolume: "false"
+provisioner: nasplugin.csi.alibabacloud.com
+reclaimPolicy: Retain

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-pod
+spec:
+  containers:
+    - name: configmap-pod
+      image: registry.cn-beijing.aliyuncs.com/lml_test/kubernetes-test:1.0.0-SNAPSHOT
+      env:
+        - name: APP_LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              key: apploglevel
+              name: pod-config
+        - name: APP_DATA_DIR
+          valueFrom:
+            configMapKeyRef:
+              key: appdatadir
+              name: pod-config
+#      #加载全部
+#      envFrom:
+#        - configMapRef:
+#            name: pod-config
+      volumeMounts:
+#        - mountPath: /usr/local
+#          name: prometheus-config
+        - mountPath: /usr/local/prometheus.yml
+          name: prometheus-config
+          subPath: prometheus.yml
+  volumes:
+    - name: prometheus-config
+      configMap:
+        name: pod-config
+        items:
+          - key: prometheus.yml
+            path: prometheus-config.yaml
+#    #加载全部
+#    - name: prometheus-config
+#      configMap:
+#        name: pod-config

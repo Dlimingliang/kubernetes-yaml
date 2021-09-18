@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    name: prometheus
+spec:
+  ports:
+    - name: prometheus
+      protocol: TCP
+      port: 9090
+      targetPort: 9090
+  selector:
+    app: prometheus
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: promethues
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s-master
+      serviceAccountName: prometheus
+      initContainers:
+        - name: "init-datapath"
+          image: busybox
+          command: [ "/bin/chmod","-R","777","/home/prometheus_data" ]
+          volumeMounts:
+            - name: data
+              mountPath: /home/prometheus_data
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.27.1
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yaml"
+            - '--storage.tsdb.retention=15d'
+            - '--storage.tsdb.path=/home/prometheus_data'
+            - '--web.enable-lifecycle'
+          ports:
+            - name: web
+              containerPort: 9090
+          volumeMounts:
+            - name: time
+              mountPath: /etc/localtime
+            - name: config-volume
+              mountPath: /etc/prometheus
+            - name: rules-volume
+              mountPath: /etc/prometheus-rules
+            - name: data
+              mountPath: /home/prometheus_data
+      volumes:
+        - name: time
+          hostPath:
+            path: /etc/localtime
+        - name: config-volume
+          configMap:
+            name: prometheus-config
+        - name: rules-volume
+          configMap:
+            name: prometheus-rules
+        - name: data
+          hostPath:
+            path: /prometheus/data

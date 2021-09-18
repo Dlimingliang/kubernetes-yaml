@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-myweb
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: myweb.izaodao.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: myweb
+              servicePort: 9090

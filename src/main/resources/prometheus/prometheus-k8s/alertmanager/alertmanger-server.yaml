@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: monitoring
+  labels:
+    name: alertmanager
+spec:
+  ports:
+    - name: alertmanager
+      protocol: TCP
+      port: 9093
+      targetPort: 9093
+  selector:
+    app: alertmanager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: monitoring
+  labels:
+    app: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s-master
+      initContainers:
+        - name: "init-datapath"
+          image: busybox
+          command: [ "/bin/chmod","-R","777","/home/alertmanager_data" ]
+          volumeMounts:
+            - name: data
+              mountPath: /home/alertmanager_data
+      containers:
+        - name: alertmanager
+          image: quay.io/prometheus/alertmanager:v0.22.0
+          args:
+            - "--config.file=/etc/prometheus/alertmanager.yaml"
+            - '--storage.path=/home/alertmanager_data'
+          ports:
+            - name: web
+              containerPort: 9093
+          volumeMounts:
+            - name: time
+              mountPath: /etc/localtime
+            - name: config-volume
+              mountPath: /etc/prometheus
+            - name: data
+              mountPath: /home/alertmanager_data
+      volumes:
+        - name: time
+          hostPath:
+            path: /etc/localtime
+        - name: config-volume
+          configMap:
+            name: alertmanager-config
+        - name: data
+          hostPath:
+            path: /prometheus/data

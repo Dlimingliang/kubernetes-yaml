@@ -1,0 +1,9 @@
+groups:
+- name: example
+  rules:
+  - alert: NodeMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 10
+    for: 1m
+    annotations:
+      summary: "{{$labels.instance}}: High Memory usage detected"
+      description: "{{$labels.instance}}: Memory usage is above 10% (current value is:{{ $value }})"

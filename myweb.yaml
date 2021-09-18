@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: myweb
+  annotations:
+    prometheus.io/probe: 'true'
+spec:
+#  type: NodePort
+  ports:
+    - port: 9090 # 暴露的端口
+      targetPort: 9090 # 对应pod的端口
+#      nodePort: 32000
+  selector:
+    app: myweb
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myweb-deployment
+  labels:
+    app: myweb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myweb
+  #更新策略
+  revisionHistoryLimit: 10 # 保存多少个旧的ReplicaSet。默认是10个，其余的将会被垃圾回收
+  strategy:
+    type: RollingUpdate # 新旧Pods替换策略Recreate和RollingUpdate。默认是RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25% #用于指定更新过程中不可用pod数量。默认为25%
+      maxSurge: 25% #期望超出的pod个数的pod数量。默认为25%
+  template:
+    metadata:
+      labels:
+        app: myweb
+      annotations:
+        prometheus.io/scrape: 'true'
+    spec:
+      terminationGracePeriodSeconds: 30 #pod终止流程中最多可以容忍的时间
+      containers:
+        - name: myweb
+          image: registry.cn-beijing.aliyuncs.com/lml_test/kubernetes-test:1.0.0-SNAPSHOT
+          imagePullPolicy: Always
+          env:
+            - name: demo.greeting
+              value: "Hello from the kubernetes enviroment"
+          ports:
+            - containerPort: 9090
+          startupProbe: #启动探测器
+            httpGet:
+              path: /index
+              port: 9090
+            failureThreshold: 12 #失败重试次数
+            periodSeconds: 10
+          livenessProbe: #存活探测器
+            httpGet:
+              path: /index
+              port: 9090
+            initialDelaySeconds: 10 #容器初始化多少秒后执行
+            periodSeconds: 20
+            timeoutSeconds: 2 # 超时后,等待多少秒
+            failureThreshold: 2
+          readinessProbe: # 就绪探测器
+            httpGet:
+              path: /index
+              port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 2
+          resources:
+            requests:
+              cpu: 300m
+              memory: 500Mi
+            limits:
+              cpu: 300m
+              memory: 500Mi
+          lifecycle:
+            #postStart: #容器创建成功后，运行前任务
+            preStop: # 容器终止前的任务,用于优雅的关闭应用程序、通知其他系统
+              exec:
+                command: ["sleep", "3"]
+
+
+
+

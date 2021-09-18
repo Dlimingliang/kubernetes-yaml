@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: acces-nginx
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            accessNginx: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector: # 选择受控于该网络策略的pod,空的 podSelector 选择名字空间下的所有 Pod。
+    matchLabels:
+      role: db
+  policyTypes: # 表示给定的策略应用于所选pod的。默认只应用Ingress。
+  - Ingress
+  - Egress
+  ingress: # 指定入站流量规则和端口 #此项规则指定了三个类型下的pod都可以访问gaipod，这三个规则是或的关系，不是且的关系
+    - from:
+        - ipBlock:
+            cidr: 172.17.0.0/16
+            except:
+              - 172.17.1.0/24
+        - namespaceSelector:
+            matchLabels:
+              project: myproject
+          podSelector: # 这条和上边的namespaceSelector是且的关系
+            matchLabels:
+              app: bbb
+        - podSelector:
+            matchLabels:
+              role: frontend
+      ports:
+        - protocol: TCP
+          port: 6379
+  egress: # 指定出站规则和端口
+    - to:
+      - ipBlock:
+          cidr: 10.0.0.0/24
+      ports:
+        - protocol: TCP
+          port: 5978

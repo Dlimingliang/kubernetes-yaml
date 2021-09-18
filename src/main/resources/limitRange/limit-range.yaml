@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  namespace: limit-range
+spec:
+  limits:
+    - type: Container
+      default:
+        memory: 512Mi # 声明了limit-range命名空间内容器内存的默认限制
+        cpu: "0.5" # 声明了limit-range命名空间内容器CPU的默认限制
+      defaultRequest:
+        memory: 256Mi # 声明了limit-range命名空间内容器内存的默认请求
+        cpu: "0.25" # 声明了limit-range命名空间内CPU的默认请求
+      max:
+        memory: 1Gi # 声明了容器内存设置的最大值 如果容器申请或限制超过了这个值，就会报错
+        cpu: 1000m # 声明了容器CPU设置的最大值 如果容器申请或限制超过了这个值，就会报错
+      min:
+        memory: 100Mi # 声明了容器内存设置的最小值 如果容器申请或限制小于这个值，就会报错
+        cpu: 200m # 声明了容器CPU设置的最小值 如果容器申请或限制小于这个值，就会报错
+
+---
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: resource-quota
+  namespace: limit-range
+spec:
+  hard: # 每个容器必须要有内存和CPU的请求和限制
+    requests.cpu: "1" #该命名空间下所有容器的cpu请求不能超过1CPU
+    requests.memory: 1Gi #该命名空间下所有的内存请求不能超过1Gi
+    limits.cpu: "2" #该命名空间下所有容器的cpu限制不能超过2CPU
+    limits.memory: 2Gi #该命名空间下所有容器的内存限制不能超过2Gi
+    pods: "2" #该命名空间下pod数量限制
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: default-mem-demo2
+  namespace: limit-range
+spec:
+  containers:
+    - name: default-mem-demo-ctr2
+      image: nginx
+#      resources:
+#        limits:
+#          memory: 1Gi # 如果只声明了limit,没有声明request,容器的请求值会被设置其限制相同的值
+#          cpu: 800m #如果只声明了limit,没有声明request,容器的请求值会被设置其限制相同的值
+#        requests:
+#          memory: 700Mi #如果只声明了request,没有声明limit,容器的限制值会使用limit-range里面的值.如果没有limitrange，就没有limit值
+#          cpu: 400m #如果只声明了request,没有声明limit,容器的限制值会使用limit-range里面的值.如果没有limitrange，就没有limit值

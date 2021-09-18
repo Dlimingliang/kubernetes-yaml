@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-selector-pod
+spec:
+  nodeSelector:
+    test: lml
+  containers:
+    - name: node-selector-pod
+      image: registry.cn-beijing.aliyuncs.com/lml_test/kubernetes-test:1.0.0-SNAPSHOT
+      ports:
+        - containerPort: 9090

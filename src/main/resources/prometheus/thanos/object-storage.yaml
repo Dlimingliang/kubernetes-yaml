@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: thanos-objectstorage
+  namespace: monitoring
+type: Opaque
+stringData:
+  objectstorage.yaml: |
+    type: ALIYUNOSS
+    config:
+      endpoint: "oss-cn-hangzhou.aliyuncs.com"
+      bucket: "zaodao-thanos-test"
+      access_key_id: "LTA******************KBu"
+      access_key_secret: "oki************************2HQ"
