@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: default
+rules:
+  - verbs:
+      - get
+      - watch
+      - list
+    apiGroups:
+      - ""
+    resources:
+      - pod
+    #  - pod/log # 资源和子资源之分
+    #resourceNames: 对于特定的资源进行限制
+
+# aggregationRule聚合的clusterrole。 控制面自动将带有标签的角色添加到monitoring的clusterRole中.
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: ClusterRole
+#metadata:
+#  name: monitoring
+#aggregationRule:
+#  clusterRoleSelectors:
+#    - matchLabels:
+#        rbac.example.com/aggregate-to-monitoring: "true"
+#rules: [] # 控制面自动填充这里的规则

@@ -1,0 +1,36 @@
+# 将pod-reader角色授予default命名空间的用户,这样用户就具有了读取default命名空间中pod的权限
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+  - kind: User
+    name: lml
+    apiGroup: rbac.authorization.k8s.io
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pod-reader
+
+---
+# rolebinding也可以绑定集群角色. 尽管这里绑定的是集群角色，用户也仅只能访问development空间的secrets
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-secrets
+  namespace: development
+subjects:
+  - kind: User
+    name: lml
+    apiGroup: rbac.authorization.k8s.io
+#    kind: Group
+#    name: system:serviceaccount:aaa
+#    kind: ServiceAccount
+#    name: system:serviceaccounts:qa
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: secret-reader
+
