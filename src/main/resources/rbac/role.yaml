@@ -11,7 +11,7 @@ rules:
     apiGroups:
       - ""
     resources:
-      - pod
+      - pods
     #  - pod/log # 资源和子资源之分
     #resourceNames: 对于特定的资源进行限制
 
