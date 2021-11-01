@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: subpath-configmap
+data:
+  nginx-1: nginx-1
+  nginx-2: nginx-2
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: subpath-configmap2
+data:
+  nginx-1: nginx-1
+  nginx-2: nginx-2
