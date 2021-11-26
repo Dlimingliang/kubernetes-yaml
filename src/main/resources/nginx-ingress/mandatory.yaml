@@ -212,11 +212,9 @@ spec:
       # wait up to five minutes for the drain of connections
       terminationGracePeriodSeconds: 300
       serviceAccountName: nginx-ingress-serviceaccount
-      nodeSelector:
-        app: ingress
       containers:
         - name: nginx-ingress-controller
-          image: registry.cn-beijing.aliyuncs.com/lml-test/nginx-ingress-controller:v0.30.0
+          image: registry.cn-beijing.aliyuncs.com/lml-test/nginx-ingress-controller:0.30.0
           args:
             - /nginx-ingress-controller
             - --configmap=$(POD_NAMESPACE)/nginx-configuration
