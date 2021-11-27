@@ -42,7 +42,7 @@ spec:
       terminationGracePeriodSeconds: 30 #pod终止流程中最多可以容忍的时间
       containers:
         - name: myweb
-          image: registry.cn-beijing.aliyuncs.com/lml-test/kubernetes-test:v1.0
+          image: registry.cn-beijing.aliyuncs.com/lml-test/kubernetes-test:v3.0
           imagePullPolicy: Always
           env:
             - name: demo.greeting
