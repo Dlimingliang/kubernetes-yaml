@@ -1,0 +1,57 @@
+global:
+  resolve_timeout: 1m
+  smtp_auth_password: xxxx
+  smtp_auth_username: 823202049@qq.com
+  smtp_from: 823202049@qq.com
+  smtp_require_tls: false
+  smtp_smarthost: smtp.qq.com:465
+receivers:
+  - email_configs: null
+    name: watch-dog
+    webhook_configs: null
+  - email_configs:
+      - headers:
+          subject: 融易维报警邮件
+        html: '{{ template "mail.html" . }}'
+        send_resolved: true
+        to: 13889614302@163.com
+    name: default-receiver
+    webhook_configs: null
+  - email_configs: null
+    name: easyw-receiver
+    webhook_configs:
+      - max_alerts: 0
+        send_resolved: true
+        url: http://192.168.1.139:8080/alert-error-list/webhook
+route:
+  group_by:
+    - severity
+  group_interval: 5m
+  group_wait: 30s
+  receiver: watch-dog
+  repeat_interval: 60m
+  routes:
+    - receiver: default-receiver
+      continue: true
+      mute_time_intervals:
+        - mute_time
+    - receiver: easyw-receiver
+      continue: true
+mute_time_intervals:
+  - name: mute_time
+    time_intervals:
+      - weekdays: [ 'friday' ]
+        times:
+          - start_time: '17:30'
+            end_time: '24:00'
+      - weekdays: [ 'saturday', 'sunday' ]
+      - weekdays: [ 'monday' ]
+        times:
+          - start_time: '00:00'
+            end_time: '08:30'
+      - weekdays: [ 'friday' ]
+        times:
+          - start_time: '15:00'
+            end_time: '17:30'
+templates:
+  - /alertmanager/config/*.tmpl
