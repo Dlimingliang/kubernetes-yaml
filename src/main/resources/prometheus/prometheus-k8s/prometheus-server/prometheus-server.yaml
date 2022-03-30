@@ -6,6 +6,7 @@ metadata:
   labels:
     name: prometheus
 spec:
+  type: NodePort
   ports:
     - name: prometheus
       protocol: TCP
@@ -57,8 +58,6 @@ spec:
               mountPath: /etc/localtime
             - name: config-volume
               mountPath: /etc/prometheus
-            - name: rules-volume
-              mountPath: /etc/prometheus-rules
             - name: data
               mountPath: /home/prometheus_data
       volumes:
@@ -68,9 +67,6 @@ spec:
         - name: config-volume
           configMap:
             name: prometheus-config
-        - name: rules-volume
-          configMap:
-            name: prometheus-rules
         - name: data
           hostPath:
             path: /prometheus/data

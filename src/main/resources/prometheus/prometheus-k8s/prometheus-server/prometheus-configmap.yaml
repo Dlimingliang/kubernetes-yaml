@@ -8,6 +8,8 @@ data:
     global:
       scrape_interval: 15s
       scrape_timeout: 15s
+      external_labels:
+          cluster: esayw-cluster
     rule_files:
       - "/etc/prometheus-rules/*.yaml"
     alerting:
@@ -68,5 +70,5 @@ data:
 
       - job_name: kube-state-metrics
         static_configs:
-        - targets: [kube-state-metrics.monitoring.svc:8080]
+        - targets: [kube-state-metrics.kube-system.svc:8080]
 
